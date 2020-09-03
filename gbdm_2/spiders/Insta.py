@@ -1,6 +1,7 @@
 import json
 import scrapy
 from scrapy.http.response import Response
+from pymongo import MongoClient
 
 
 class InstagramSpider(scrapy.Spider):
@@ -18,6 +19,8 @@ class InstagramSpider(scrapy.Spider):
         self.__login = kwargs['login']
         self.__password = kwargs['password']
         super().__init__(*args, **kwargs)
+        self.client = MongoClient('mongodb://localhost:27017')
+        self.db = self.client['parse_gb_blog']
 
     def parse(self, response: Response, **kwargs):
         try:
@@ -91,3 +94,6 @@ class InstagramSpider(scrapy.Spider):
         ).extract_first()
         data = data.replace(marker, '')[:-1]
         return json.loads(data)
+
+    def save_to_mongo(self):
+        self.collection.insert_many(self.parse_1)
